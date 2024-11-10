@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Coordinates Trainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            gap: 0;
+            margin: 20px auto;
+            width: 480px;
+            border: 2px solid black;
+        }
+
+        .square {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .light {
+            background-color: #f0d9b5;
+        }
+
+        .dark {
+            background-color: #b58863;
+        }
+
+        .coordinate {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        #next, #toggle {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #prompt, #feedback {
+            font-size: 18px;
+            margin: 10px;
+        }
+
+        #feedback {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chess Coordinates Trainer</h1>
+    <p id="prompt"></p>
+    <div id="board"></div>
+    <p id="feedback"></p>
+    <button id="next">Next</button>
+    <button id="toggle">Toggle Coordinates</button>
+
+    <script>
+        const board = document.getElementById('board');
+        const prompt = document.getElementById('prompt');
+        const feedback = document.getElementById('feedback');
+        const nextButton = document.getElementById('next');
+        const toggleButton = document.getElementById('toggle');
+
+        const files = ['a','b','c','d','e','f','g','h'];
+        const ranks = [8,7,6,5,4,3,2,1];
+
+        let targetSquare = '';
+        let coordinatesVisible = false;
+
+        function createBoard() {
+            // Clear the board
+            board.innerHTML = '';
+
+            for (let rank of ranks) {
+                for (let fileIndex in files) {
+                    const file = files[fileIndex];
+                    const square = document.createElement('div');
+                    square.classList.add('square');
+
+                    // Determine square color
+                    const sum = parseInt(fileIndex) + rank;
+                    if (sum % 2 === 0) {
+                        square.classList.add('light');
+                    } else {
+                        square.classList.add('dark');
+                    }
+
+                    // Assign coordinate to the square
+                    const coordinate = file + rank;
+                    square.setAttribute('data-square', coordinate);
+
+                    // Add coordinate label
+                    const coordLabel = document.createElement('div');
+                    coordLabel.classList.add('coordinate');
+                    coordLabel.textContent = coordinate;
+                    coordLabel.style.display = coordinatesVisible ? 'block' : 'none';
+                    square.appendChild(coordLabel);
+
+                    // Add click event listener
+                    square.addEventListener('click', onSquareClick);
+
+                    // Add the square to the board
+                    board.appendChild(square);
+                }
+            }
+        }
+
+        function randomSquare() {
+            const randomFile = files[Math.floor(Math.random() * files.length)];
+            const randomRank = ranks[Math.floor(Math.random() * ranks.length)];
+            return randomFile + randomRank;
+        }
+
+        function startGame() {
+            targetSquare = randomSquare();
+            prompt.textContent = `Click on square ${targetSquare}`;
+            feedback.textContent = '';
+        }
+
+        function onSquareClick(e) {
+            const clickedSquare = e.currentTarget.getAttribute('data-square');
+            if (clickedSquare === targetSquare) {
+                feedback.textContent = 'Correct!';
+                feedback.style.color = 'green';
+            } else {
+                feedback.textContent = `Incorrect! You clicked on ${clickedSquare}`;
+                feedback.style.color = 'red';
+            }
+        }
+
+        function toggleCoordinates() {
+            coordinatesVisible = !coordinatesVisible;
+            const coordLabels = document.querySelectorAll('.coordinate');
+            coordLabels.forEach(label => {
+                label.style.display = coordinatesVisible ? 'block' : 'none';
+            });
+        }
+
+        nextButton.addEventListener('click', startGame);
+        toggleButton.addEventListener('click', toggleCoordinates);
+
+        // Initialize the game
+        createBoard();
+        startGame();
+    </script>
+</body>
+</html>
